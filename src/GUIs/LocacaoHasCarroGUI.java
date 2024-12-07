@@ -45,6 +45,7 @@ public class LocacaoHasCarroGUI extends JDialog {
     JPanel pnCentro = new JPanel();
     JPanel pnSul = new JPanel();
     JButton btBuscar = new JButton("Buscar");
+    JButton btCriarPDF = new JButton("CriarPDF");
     JButton btAdicionar = new JButton("Adicionar");
     JButton btSalvar = new JButton("Salvar");
     JButton btAlterar = new JButton("Alterar");
@@ -115,6 +116,7 @@ public class LocacaoHasCarroGUI extends JDialog {
         pnNorte.add(btExcluir);
         pnNorte.add(btListar);
         pnNorte.add(btSalvar);
+        pnNorte.add(btCriarPDF);
         pnNorte.add(btCancelar);
 
         btSalvar.setVisible(false);
@@ -172,7 +174,17 @@ public class LocacaoHasCarroGUI extends JDialog {
         }
 
         cbLocacaoId.setSelectedIndex(0);
+        
+        
+        btCriarPDF.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) { 
+                LocacaoHasCarroPDF ma = new LocacaoHasCarroPDF ("LocacaoHasCarro");
+            }
+        }); 
         // listener Buscar
+        
+        
         btBuscar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

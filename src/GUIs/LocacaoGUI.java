@@ -1,9 +1,9 @@
 package GUIs;
 
+import Entidades.Locacao;
 import DAOs.DAOCliente;
 import DAOs.DAOLocacao;
 import Entidades.Cliente;
-import Entidades.Locacao;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -38,7 +38,7 @@ import tools.JanelaPesquisar;
 
 /**
  *
- * @author Leonardo Pontim 30/11/2024 - 16:36:41
+ * @author Leonardo Pontim 07/12/2024 - 13:13:15
  */
 public class LocacaoGUI extends JDialog {
 
@@ -69,14 +69,17 @@ public class LocacaoGUI extends JDialog {
     JTextField tfIdLocacao = new JTextField(20);
     JLabel lbDataLocacao = new JLabel("DataLocacao");
     JTextField tfDataLocacao = new JTextField(20);
+    JLabel lbDataFinalLocacao = new JLabel("DataFinalLocacao");
+    JTextField tfDataFinalLocacao = new JTextField(20);
     JLabel lbClientePessoaCpfPessoa = new JLabel("ClientePessoaCpfPessoa");
     JTextField tfClientePessoaCpfPessoa = new JTextField(20);
     JLabel[] lbVazio = new JLabel[99];
+    JLabel lblDiferencaDias = new JLabel("");
     DAOLocacao daoLocacao = new DAOLocacao();
     Locacao locacao = new Locacao();
-    String[] colunas = new String[]{"idLocacao", "dataLocacao", "clientePessoaCpfPessoa"};
+    String[] colunas = new String[]{"idLocacao", "dataLocacao", "dataFinalLocacao", "clientePessoaCpfPessoa"};
     String[][] dados = new String[0][colunas.length];
-    
+
     DAOCliente daoCliente = new DAOCliente();
     Cliente cliente = new Cliente();
 
@@ -117,6 +120,7 @@ public class LocacaoGUI extends JDialog {
         pnNorte.add(btListar);
         pnNorte.add(btSalvar);
         pnNorte.add(btCancelar);
+        pnNorte.add(lblDiferencaDias);
 
         btSalvar.setVisible(false);
         btAdicionar.setVisible(false);
@@ -124,9 +128,11 @@ public class LocacaoGUI extends JDialog {
         btExcluir.setVisible(false);
         btCancelar.setVisible(false);
         tfDataLocacao.setEditable(false);
+        tfDataFinalLocacao.setEditable(false);
         tfClientePessoaCpfPessoa.setEditable(false);
         pnCentro.setLayout(new GridLayout(colunas.length - 1, 2));
         lbDataLocacao.setHorizontalAlignment(SwingConstants.CENTER);
+        lbDataFinalLocacao.setHorizontalAlignment(SwingConstants.CENTER);
         lbClientePessoaCpfPessoa.setHorizontalAlignment(SwingConstants.CENTER);
 
         for (int i = 0; i < 99; i++) {
@@ -134,6 +140,8 @@ public class LocacaoGUI extends JDialog {
         }
         pnCentro.add(lbDataLocacao);
         pnCentro.add(tfDataLocacao);
+        pnCentro.add(lbDataFinalLocacao);
+        pnCentro.add(tfDataFinalLocacao);
         pnCentro.add(lbClientePessoaCpfPessoa);
         pnCentro.add(tfClientePessoaCpfPessoa);
         cardLayout = new CardLayout();
@@ -149,6 +157,7 @@ public class LocacaoGUI extends JDialog {
 
         pnAvisos.add(new JLabel("Avisos"));
         String caminho = "Locacao.csv";
+        //carregar dados do HD para memória RAM
 
 // listener Buscar
         btBuscar.addActionListener(new ActionListener() {
@@ -158,20 +167,29 @@ public class LocacaoGUI extends JDialog {
                 try {
                     locacao = daoLocacao.obter(Integer.valueOf(tfIdLocacao.getText()));
                     if (locacao != null) {//achou o locacao na lista
+                        long diffInMillis = locacao.getDataFinalLocacao().getTime() - locacao.getDataLocacao().getTime();
+                        long diffInDays = diffInMillis / (24 * 60 * 60 * 1000); // Convertendo milissegundos para dias
+
+                        // Atualizar o JLabel com a diferença de dias
+                        lblDiferencaDias.setText("Dias de locação: " + diffInDays);
                         //mostrar
                         btAdicionar.setVisible(false);
                         btAlterar.setVisible(true);
                         btExcluir.setVisible(true);
                         tfDataLocacao.setText(new SimpleDateFormat("dd/MM/yyyy").format(locacao.getDataLocacao()));
+                        tfDataFinalLocacao.setText(new SimpleDateFormat("dd/MM/yyyy").format(locacao.getDataFinalLocacao()));
                         tfClientePessoaCpfPessoa.setText(String.valueOf(locacao.getClientePessoaCpfPessoa()));
                         tfClientePessoaCpfPessoa.setEditable(false);
                     } else {//não achou na lista
+                        lblDiferencaDias.setText("");
                         //mostrar botão incluir
                         btAdicionar.setVisible(true);
                         btAlterar.setVisible(false);
                         btExcluir.setVisible(false);
                         tfDataLocacao.setText("");
                         tfDataLocacao.setEditable(false);
+                        tfDataFinalLocacao.setText("");
+                        tfDataFinalLocacao.setEditable(false);
                         tfClientePessoaCpfPessoa.setText("");
                         tfClientePessoaCpfPessoa.setEditable(false);
                     }
@@ -188,6 +206,7 @@ public class LocacaoGUI extends JDialog {
                 tfIdLocacao.setEnabled(false);
                 tfDataLocacao.requestFocus();
                 tfDataLocacao.setEditable(true);
+                tfDataFinalLocacao.setEditable(true);
                 tfClientePessoaCpfPessoa.setEditable(true);
                 btAdicionar.setVisible(false);
                 btSalvar.setVisible(true);
@@ -207,14 +226,23 @@ public class LocacaoGUI extends JDialog {
                 if (acao.equals("adicionar")) {
                     locacao = new Locacao();
                 }
-                Locacao locacaoAntigo = locacao;
                 try {
                     locacao.setIdLocacao(Integer.valueOf(tfIdLocacao.getText()));
                     sdf.setLenient(false);
                     data = sdf.parse(tfDataLocacao.getText());
                     locacao.setDataLocacao(data);
                     locacao.setDataLocacao(cf.converteDeStringParaDate(tfDataLocacao.getText()));
-                    locacao.setClientePessoaCpfPessoa(daoCliente.obter( tfClientePessoaCpfPessoa.getText()));
+                    sdf.setLenient(false);
+                    data = sdf.parse(tfDataFinalLocacao.getText());
+                    locacao.setDataFinalLocacao(data);
+                    locacao.setDataFinalLocacao(cf.converteDeStringParaDate(tfDataFinalLocacao.getText()));
+
+                    if (locacao.getDataFinalLocacao().before(locacao.getDataLocacao())) {
+                        JOptionPane.showMessageDialog(cp, "Erro! A data final deve ser maior que a data de locação.", "Erro", JOptionPane.ERROR_MESSAGE);
+                        return; // Interrompe o processo se a validação falhar
+                    }
+
+                    locacao.setClientePessoaCpfPessoa(daoCliente.obter(tfClientePessoaCpfPessoa.getText()));
                     if (acao.equals("adicionar")) {
                         daoLocacao.inserir(locacao);
                     } else {
@@ -234,12 +262,18 @@ public class LocacaoGUI extends JDialog {
                     tfDataLocacao.requestFocus();
                     tfDataLocacao.setText("");
                     tfDataLocacao.setText("");
+                    tfDataFinalLocacao.setEnabled(true);
+                    tfDataFinalLocacao.setEditable(true);
+                    tfDataFinalLocacao.requestFocus();
+                    tfDataFinalLocacao.setText("");
+                    tfDataFinalLocacao.setText("");
                     tfClientePessoaCpfPessoa.setEnabled(true);
                     tfClientePessoaCpfPessoa.setEditable(true);
                     tfClientePessoaCpfPessoa.requestFocus();
                     tfClientePessoaCpfPessoa.setText("");
                     tfClientePessoaCpfPessoa.setText("");
                 } catch (Exception ex) {
+
                     JOptionPane.showMessageDialog(cp, "Erro, Digite Novamente!", "Erro ao buscar", JOptionPane.PLAIN_MESSAGE);
 
                 }
@@ -255,6 +289,7 @@ public class LocacaoGUI extends JDialog {
                 tfIdLocacao.setEditable(false);
                 tfDataLocacao.requestFocus();
                 tfDataLocacao.setEditable(true);
+                tfDataFinalLocacao.setEditable(true);
                 tfClientePessoaCpfPessoa.setEditable(true);
                 btSalvar.setVisible(true);
                 btCancelar.setVisible(true);
@@ -281,6 +316,8 @@ public class LocacaoGUI extends JDialog {
                 tfIdLocacao.setText("");
                 tfDataLocacao.setText("");
                 tfDataLocacao.setEditable(false);
+                tfDataFinalLocacao.setText("");
+                tfDataFinalLocacao.setEditable(false);
                 tfClientePessoaCpfPessoa.setText("");
                 tfClientePessoaCpfPessoa.setEditable(false);
                 btAlterar.setVisible(false);
@@ -295,7 +332,7 @@ public class LocacaoGUI extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 List<Locacao> listaLocacao = daoLocacao.list();
-                String[] colunas = new String[]{"IdLocacao", "DataLocacao", "ClientePessoaCpfPessoa"};
+                String[] colunas = new String[]{"IdLocacao", "DataLocacao", "DataFinalLocacao", "ClientePessoaCpfPessoa"};
                 String[][] dados = new String[listaLocacao.size()][colunas.length];
                 String aux[];
                 for (int i = 0; i < listaLocacao.size(); i++) {
@@ -314,6 +351,7 @@ public class LocacaoGUI extends JDialog {
                 btExcluir.setVisible(false);
                 btAdicionar.setVisible(false);
                 tfDataLocacao.setEditable(false);
+                tfDataFinalLocacao.setEditable(false);
                 tfClientePessoaCpfPessoa.setEditable(false);//cor do background e da letra de cada coluna
                 coluna1.setBackground(Color.decode("#FFB0CF"));
                 coluna1.setForeground(Color.decode("#111111"));
@@ -321,6 +359,7 @@ public class LocacaoGUI extends JDialog {
                 tabela.getColumnModel().getColumn(0).setCellRenderer(coluna1);
                 tabela.getColumnModel().getColumn(1).setCellRenderer(coluna1);
                 tabela.getColumnModel().getColumn(2).setCellRenderer(coluna1);
+                tabela.getColumnModel().getColumn(3).setCellRenderer(coluna1);
             }
         });
 
@@ -335,6 +374,8 @@ public class LocacaoGUI extends JDialog {
                 tfIdLocacao.setEditable(true);
                 tfDataLocacao.setText("");
                 tfDataLocacao.setEditable(false);
+                tfDataFinalLocacao.setText("");
+                tfDataFinalLocacao.setEditable(false);
                 tfClientePessoaCpfPessoa.setText("");
                 tfClientePessoaCpfPessoa.setEditable(false);
                 btBuscar.setVisible(true);
@@ -381,7 +422,7 @@ public class LocacaoGUI extends JDialog {
 
         setModal(true);
         pack();
-        setSize(600, 400);
+        setSize(750, 400);
         setLocationRelativeTo(null);//centraliza na tela
         setVisible(true);
     }//fim do contrutor de GUI

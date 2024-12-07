@@ -30,7 +30,6 @@ public class UnicasGUI extends JFrame{
     private final JButton btCargo = new JButton("CARGO");
     private final JButton btCidade = new JButton("CIDADE");
     private final JButton btMotor = new JButton("MOTOR");
-    private final JButton btPrecoSemana = new JButton("PREÇO SEMANA");
      public UnicasGUI() {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         cp = getContentPane();
@@ -45,7 +44,6 @@ public class UnicasGUI extends JFrame{
         pnCentro.add(btCargo);
         pnCentro.add(btMotor);
         pnCentro.add(btCidade);
-        pnCentro.add(btPrecoSemana);
         
         btCargo.setVisible(true);
         btCidade.setVisible(true);
@@ -69,14 +67,7 @@ public class UnicasGUI extends JFrame{
                 MotorGUI motorGui = new MotorGUI();
             }
         });
-//        btPrecoSemana.addActionListener(new ActionListener(){
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                PrecoSemanaGUI precoSemanaGui = new PrecoSemanaGUI();
-//            }
-//        });
 
-        
         
         
         pack();

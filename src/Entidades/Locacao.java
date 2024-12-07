@@ -6,9 +6,7 @@ package Entidades;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -16,7 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -38,10 +35,11 @@ public class Locacao implements Serializable {
     private Integer idLocacao;
     @Basic(optional = false)
     @Column(name = "data_locacao")
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     private Date dataLocacao;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "locacao")
-    private List<LocacaoHasCarro> locacaoHasCarroList;
+    @Column(name = "data_final_locacao")
+    @Temporal(TemporalType.DATE)
+    private Date dataFinalLocacao;
     @JoinColumn(name = "cliente_pessoa_cpf_pessoa", referencedColumnName = "pessoa_cpf_pessoa")
     @ManyToOne(optional = false)
     private Cliente clientePessoaCpfPessoa;
@@ -74,12 +72,12 @@ public class Locacao implements Serializable {
         this.dataLocacao = dataLocacao;
     }
 
-    public List<LocacaoHasCarro> getLocacaoHasCarroList() {
-        return locacaoHasCarroList;
+    public Date getDataFinalLocacao() {
+        return dataFinalLocacao;
     }
 
-    public void setLocacaoHasCarroList(List<LocacaoHasCarro> locacaoHasCarroList) {
-        this.locacaoHasCarroList = locacaoHasCarroList;
+    public void setDataFinalLocacao(Date dataFinalLocacao) {
+        this.dataFinalLocacao = dataFinalLocacao;
     }
 
     public Cliente getClientePessoaCpfPessoa() {
@@ -112,7 +110,7 @@ public class Locacao implements Serializable {
 
     @Override
     public String toString() {
-        return idLocacao+";"+dataLocacao+";"+clientePessoaCpfPessoa;
+        return idLocacao+";" + dataLocacao + ";" +dataFinalLocacao + ";" + clientePessoaCpfPessoa;
     }
     
 }

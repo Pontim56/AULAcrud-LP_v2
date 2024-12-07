@@ -12,7 +12,7 @@ public class DAOLocacao extends DAOGenerico<Locacao> {
     public DAOLocacao() {
         super(Locacao.class);
     }
-
+    
     public int autoIdLocacao() {
         Integer a = (Integer) em.createQuery("SELECT MAX(e.idLocacao) FROM Locacao e ").getSingleResult();
         if (a != null) {

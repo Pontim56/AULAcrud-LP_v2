@@ -12,7 +12,7 @@ public class DAOPessoa extends DAOGenerico<Pessoa> {
     public DAOPessoa() {
         super(Pessoa.class);
     }
-
+    
     public int autoCpfPessoa() {
         Integer a = (Integer) em.createQuery("SELECT MAX(e.CpfPessoa) FROM Pessoa e ").getSingleResult();
         if (a != null) {
@@ -59,5 +59,9 @@ public class DAOPessoa extends DAOGenerico<Pessoa> {
         for (Pessoa Pessoa : listaPessoa) {
             System.out.println(Pessoa.getCpfPessoa()+ "-" + Pessoa.getNomePessoa()+ "-" + Pessoa.getDataDeNascimento() + "-" + Pessoa.getCidadeIdCidade()+ "-" + Pessoa.getCodigoPessoa());
         }
+    }
+
+    public Pessoa get(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
